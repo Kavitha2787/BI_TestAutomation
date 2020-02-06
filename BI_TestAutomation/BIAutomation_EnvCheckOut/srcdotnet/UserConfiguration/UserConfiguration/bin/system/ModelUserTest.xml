@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite" parallel="false">
+  <test name="Test">
+   <parameter name="userconfigfilename" value="ModelUserConfig.properties"></parameter> 
+   <listeners>
+         <listener class-name="BI.automation.testng.customization.TestNGCustomListnerIReport" />
+         <listener class-name="BI.automation.testng.customization.TestNGCustomListnerIExecutionListener" />
+         <listener class-name="BI.automation.testng.customization.TestNGCustomListnerISuiteListener" />
+         <listener class-name="BI.automation.testng.customization.TestNGCustomListnerITestListener" />
+    </listeners>
+    <classes>
+      <class name="tests.ie.BIEnvironmentCheckout"/>
+      <methods>
+      	<include name="openHIUIHomePage"/>
+      	<include name="logInToHIUIHomePage"/>
+      	<exclude name="clickOnAppsForAnalyticsLibrary"/>
+      	<exclude name="openAnalyticsLibrary"/>
+      	<exclude name="openAnalyticsLibraryLReports"/>
+      	<exclude name="clickOnAppsForBILaunchPad"/>
+      	<exclude name="openBILaunnchPad"/>
+      	<exclude name="openBiLaunchPadFolder"/>
+      	<exclude name="openBiLaunchPadReports"/>
+      	<exclude name="logOffFromBiLaunchPad"/> 
+     	<exclude name="clickOnAppsForWPB"/>
+ 		<exclude name="openWPB"/>
+		<exclude name="openWPBReports"/>
+		<exclude name="closeWPB"/>     	
+		<exclude name="clickOnAppsForEMT"/>
+		<exclude name="openEmeasureTool"/>
+		<exclude name="clickOnSetupTab"/>
+		<exclude name="clickOnMapTab"/>
+		<exclude name="clickOnToolsTab"/>
+		<exclude name="clickOnAdministrationTab"/>
+		<exclude name="clickOnSubmittersTab"/>
+		<exclude name="closeEMT"/>
+		<include name="logOutFromHIUIHomePage"/>		
+		<exclude name="validateDSSJobScheduler"/>
+	
+	  </methods>	
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->

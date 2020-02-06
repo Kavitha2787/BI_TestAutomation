@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="4" passed="4">
+  <reporter-output>
+  </reporter-output>
+  <suite name="IE_12_2_e_suite" duration-ms="198032" started-at="2020-02-03T10:12:39Z" finished-at="2020-02-03T10:15:57Z">
+    <groups>
+    </groups>
+    <test name="IE_12_2_e_test" duration-ms="198032" started-at="2020-02-03T10:12:39Z" finished-at="2020-02-03T10:15:57Z">
+      <class name="tests.ie.BIEnvironmentCheckout">
+        <test-method status="PASS" signature="testBaseSetup(java.lang.String)[pri:0, instance:tests.ie.BIEnvironmentCheckout@5276e6b0]" name="testBaseSetup" is-config="true" duration-ms="30365" started-at="2020-02-03T15:42:39Z" finished-at="2020-02-03T15:43:10Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[IE_12_2_e.properties]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testBaseSetup -->
+        <test-method status="PASS" signature="openHIUIHomePage()[pri:1, instance:tests.ie.BIEnvironmentCheckout@5276e6b0]" name="openHIUIHomePage" duration-ms="2680" started-at="2020-02-03T15:43:10Z" finished-at="2020-02-03T15:43:12Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- openHIUIHomePage -->
+        <test-method status="PASS" signature="logInToHIUIHomePage()[pri:2, instance:tests.ie.BIEnvironmentCheckout@5276e6b0]" name="logInToHIUIHomePage" duration-ms="15092" started-at="2020-02-03T15:43:12Z" finished-at="2020-02-03T15:43:27Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- logInToHIUIHomePage -->
+        <test-method status="PASS" signature="clickOnAppsForAnalyticsLibrary()[pri:3, instance:tests.ie.BIEnvironmentCheckout@5276e6b0]" name="clickOnAppsForAnalyticsLibrary" duration-ms="66551" started-at="2020-02-03T15:43:27Z" finished-at="2020-02-03T15:44:34Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- clickOnAppsForAnalyticsLibrary -->
+        <test-method status="PASS" signature="logOutFromHIUIHomePage()[pri:23, instance:tests.ie.BIEnvironmentCheckout@5276e6b0]" name="logOutFromHIUIHomePage" duration-ms="66077" started-at="2020-02-03T15:44:34Z" finished-at="2020-02-03T15:45:40Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- logOutFromHIUIHomePage -->
+        <test-method status="PASS" signature="tearDown()[pri:0, instance:tests.ie.BIEnvironmentCheckout@5276e6b0]" name="tearDown" is-config="true" duration-ms="17256" started-at="2020-02-03T15:45:40Z" finished-at="2020-02-03T15:45:57Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+      </class> <!-- tests.ie.BIEnvironmentCheckout -->
+    </test> <!-- IE_12_2_e_test -->
+  </suite> <!-- IE_12_2_e_suite -->
+</testng-results>

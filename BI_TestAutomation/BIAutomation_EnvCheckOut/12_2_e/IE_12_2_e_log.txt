@@ -1,0 +1,18 @@
+[TestNG] Running:
+  C:\Automation\BI_TestAutomation\BI_TestAutomation\BIAutomation_EnvCheckOut\12_2_e\IE_12_2_e.xml
+
+Under click action:>> input
+Under click action:>> input
+logOutfromHIUI-Current Window Title>>Cerner Soarian
+logOutFromHIUI>>Timed out after 60 seconds waiting for visibility of element located by By.xpath: //li/a[@Class='text-uppercase ng-binding']
+Build info: version: '2.52.0', revision: '4c2593c', time: '2016-02-11 19:03:33'
+System info: host: 'W1862432', ip: '10.182.102.162', os.name: 'Windows 10', os.arch: 'amd64', os.version: '10.0', java.version: '1.8.0_231'
+Driver info: org.openqa.selenium.ie.InternetExplorerDriver
+Capabilities [{browserAttachTimeout=0, ie.enableFullPageScreenshot=true, enablePersistentHover=true, ie.forceCreateProcessApi=false, ie.forceShellWindowsApi=false, pageLoadStrategy=normal, ignoreZoomSetting=true, ie.fileUploadDialogTimeout=3000, version=11, platform=WINDOWS, nativeEvents=true, ie.ensureCleanSession=true, elementScrollBehavior=0, ie.browserCommandLineSwitches=, requireWindowFocus=false, browserName=internet explorer, initialBrowserUrl=http://localhost:45121/, javascriptEnabled=true, ignoreProtectedModeSettings=true, enableElementCacheCleanup=true, unexpectedAlertBehaviour=dismiss}]
+Session ID: 03aba8cf-073b-446a-b404-f0e7f07255fa
+
+===============================================
+IE_12_2_e_suite
+Total tests run: 4, Failures: 0, Skips: 0
+===============================================
+

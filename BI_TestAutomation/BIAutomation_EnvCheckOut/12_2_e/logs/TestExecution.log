@@ -1,0 +1,52 @@
+[INFO ] 2020-02-03 15:42:39.577 [main] TestNGCustomListnerIExecutionListener - ---- TEST STARTED----
+[INFO ] 2020-02-03 15:42:39.743 [main] TestNGCustomListnerISuiteListener - ---- TEST SUITE STARTED----
+[INFO ] 2020-02-03 15:42:39.743 [main] TestNGCustomListnerISuiteListener - Suit>>IE_12_2_e_suite>>Current ouputfolder>>C:\Automation\BI_TestAutomation\BI_TestAutomation\BIAutomation_EnvCheckOut\12_2_e\outputfolder\IE_12_2_e_20200203154200039
+[INFO ] 2020-02-03 15:42:39.743 [main] TestNGCustomListnerITestListener - ---- TEST STARTED----
+[INFO ] 2020-02-03 15:42:39.743 [main] TestNGCustomListnerITestListener - Test>>IE_12_2_e_test
+[INFO ] 2020-02-03 15:42:39.756 [main] BIEnvironmentCheckout - initializeUserAndMachineDetails >>Started..
+[INFO ] 2020-02-03 15:42:39.756 [main] BIEnvironmentCheckout - Wait... system information reading
+[INFO ] 2020-02-03 15:42:43.436 [main] BIEnvironmentCheckout - Completed... system information reading
+[INFO ] 2020-02-03 15:42:43.437 [main] BIEnvironmentCheckout - initializeUserAndMachineDetails >>Completed..
+[INFO ] 2020-02-03 15:42:43.438 [main] BIEnvironmentCheckout - initializeUserConfig >>Started..
+[INFO ] 2020-02-03 15:42:43.438 [main] BIEnvironmentCheckout - Current User folder>>C:\Automation\BI_TestAutomation\BI_TestAutomation\BIAutomation_EnvCheckOut\12_2_e
+[INFO ] 2020-02-03 15:42:43.439 [main] BIEnvironmentCheckout - Current User folder>>IE_12_2_e.properties
+[INFO ] 2020-02-03 15:42:43.444 [main] BIEnvironmentCheckout - initializeUserConfig >>Completed..
+[INFO ] 2020-02-03 15:42:43.445 [main] BIEnvironmentCheckout - initializeSystemConfig >>Started..
+[INFO ] 2020-02-03 15:42:43.445 [main] BIEnvironmentCheckout - System property location should be under>>C:\Automation\BI_TestAutomation\BI_TestAutomation\BIAutomation_EnvCheckOut\12_2_e\..\system\
+[INFO ] 2020-02-03 15:42:43.448 [main] BIEnvironmentCheckout - Actual system property location>>C:\Automation\BI_TestAutomation\BI_TestAutomation\BIAutomation_EnvCheckOut\12_2_e\..\system\systemconfig_IE.properties
+[INFO ] 2020-02-03 15:42:43.449 [main] BIEnvironmentCheckout - initializeSystemConfig >>Completed
+[INFO ] 2020-02-03 15:42:43.450 [main] BIEnvironmentCheckout - startSnifingForMessgeFromWebPage >>Started..
+[INFO ] 2020-02-03 15:42:43.454 [main] BIEnvironmentCheckout - startSnifingForMessgeFromWebPage >>Completed
+[INFO ] 2020-02-03 15:42:43.455 [main] BIEnvironmentCheckout - startSnifingCertificateErrorMessageFromIE >>Started..
+[INFO ] 2020-02-03 15:42:43.464 [main] BIEnvironmentCheckout - startSnifingCertificateErrorMessageFromIE >>Completed
+[INFO ] 2020-02-03 15:42:43.472 [main] OpenBrowser - Passed Browser Type >> IE
+[INFO ] 2020-02-03 15:42:43.473 [main] OpenBrowser - Passed Browser Path >> C:/Automation/BI_TestAutomation/BI_TestAutomation/BIAutomation_EnvCheckOut/12_2_e/../drivers/IEDriverServer_Win32_2.53.1/IEDriverServer.exe
+[INFO ] 2020-02-03 15:42:43.474 [main] OpenBrowser - Passed System.setProperty
+[INFO ] 2020-02-03 15:42:56.999 [main] OpenBrowser - Passed Initiate Driver
+[INFO ] 2020-02-03 15:42:57.018 [main] OpenBrowser - Passed Initiate Wait
+[INFO ] 2020-02-03 15:42:57.909 [main] OpenBrowser - Browsertype|IE
+[INFO ] 2020-02-03 15:42:57.909 [main] OpenBrowser - Browserdriver|C:/Automation/BI_TestAutomation/BI_TestAutomation/BIAutomation_EnvCheckOut/12_2_e/../drivers/IEDriverServer_Win32_2.53.1/IEDriverServer.exe
+[INFO ] 2020-02-03 15:43:10.118 [main] HIUIHomePage - Getting Driver
+[INFO ] 2020-02-03 15:43:10.134 [main] HIUIHomePage - Driver title>>Cerner Soarian
+[INFO ] 2020-02-03 15:43:10.167 [main] HIUIHomePage - Open HIUI Login Homepage>>Cerner Soarian
+[INFO ] 2020-02-03 15:45:41.739 [main] BIEnvironmentCheckout - tearDown-Sleep of 5 seconds
+[INFO ] 2020-02-03 15:45:46.741 [main] WindowsActions - taskkill /F /FI "USERNAME eq KN023025" /IM IEDriverServer.exe
+[INFO ] 2020-02-03 15:45:46.764 [main] WindowsActions - Windows Action Taskkill Success...
+[INFO ] 2020-02-03 15:45:49.766 [main] WindowsActions - taskkill /F /FI "USERNAME eq KN023025" /IM iexplore.exe
+[INFO ] 2020-02-03 15:45:49.772 [main] WindowsActions - Windows Action Taskkill Success...
+[INFO ] 2020-02-03 15:45:57.870 [main] TestNGCustomListnerITestListener - Test>>IE_12_2_e_test
+[INFO ] 2020-02-03 15:45:57.870 [main] TestNGCustomListnerITestListener - ---- TEST FINISHED----
+[INFO ] 2020-02-03 15:45:57.872 [main] TestNGCustomListnerISuiteListener - Suit>>IE_12_2_e_suite>>Current ouputfolder>>C:\Automation\BI_TestAutomation\BI_TestAutomation\BIAutomation_EnvCheckOut\12_2_e\outputfolder\IE_12_2_e_20200203154200039
+[INFO ] 2020-02-03 15:45:57.873 [main] TestNGCustomListnerISuiteListener - ---- TEST SUITE FINISHED----
+[INFO ] 2020-02-03 15:45:57.874 [main] TestNGCustomListnerIExecutionListener - ---- TEST FINISHED----
+[INFO ] 2020-02-03 15:45:58.184 [main] TestNGCustomListnerIReport - ---- TEST REPORTING STARTED----
+[INFO ] 2020-02-03 15:45:58.230 [main] ZipUtils - Output to Zip : C:\Automation\BI_TestAutomation\BI_TestAutomation\BIAutomation_EnvCheckOut\12_2_e\outputfolder\IE_12_2_e_20200203154200039\Screenshots.zip
+[INFO ] 2020-02-03 15:45:58.230 [main] ZipUtils - File Added : clickOnApps_20200203154434_1.jpeg
+[INFO ] 2020-02-03 15:45:58.297 [main] ZipUtils - File Added : logIn_20200203154326_1.jpeg
+[INFO ] 2020-02-03 15:45:58.332 [main] ZipUtils - File Added : logOutFromHIUI_20200203154540_1.jpeg
+[INFO ] 2020-02-03 15:45:58.372 [main] ZipUtils - File Added : openHIUIHomePage_20200203154312_1.jpeg
+[INFO ] 2020-02-03 15:45:58.416 [main] ZipUtils - File Added : TestReport.html
+[INFO ] 2020-02-03 15:45:58.418 [main] ZipUtils - Folder successfully compressed
+[ERROR] 2020-02-03 15:45:58.503 [main] EmailSender - Emailed UnSuccessful...
+[ERROR] 2020-02-03 15:45:58.503 [main] EmailSender - javax.mail.internet.AddressException: Local address contains control or whitespace in string ``Email address to whome the report will go''
+[INFO ] 2020-02-03 15:45:58.504 [main] TestNGCustomListnerIReport - ---- TEST REPORTING FINISHED----

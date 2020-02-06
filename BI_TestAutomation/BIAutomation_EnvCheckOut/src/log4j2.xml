@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<Configuration status="warn"> 
+<Properties> 
+<Property name="log-path">logs</Property> 
+</Properties> 
+<Appenders> 
+	<File name="file-log" fileName="${log-path}/TestExecution.log"> 
+	<PatternLayout> 
+	<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern> 
+	</PatternLayout> 
+	</File> 
+</Appenders> 
+<Loggers> 
+<Logger name="org.apache.http.impl.client" level="off" additivity="false">  
+</Logger> 
+<Root level="info" additivity="false"> 
+<appender-ref ref="file-log" level="info"/>
+</Root> 
+</Loggers> 
+</Configuration>

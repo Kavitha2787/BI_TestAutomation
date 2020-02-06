@@ -1,0 +1,500 @@
+USE [SMSPHDSSETSF]
+GO
+/****** Object:  StoredProcedure [dbo].[BITestTeam_CompareSP_Original_Latest]    Script Date: 3/6/2018 5:09:57 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[BITestTeam_CompareSP_Original_Latest]
+	
+		--declare 
+		@T1_DBSrverName varchar(50)=null
+		,@T1_DBNAME varchar(50)=null
+		,@T1_SCHEMA_NAME varchar(10)		
+		,@T1_TABLE_NAME varchar(100)
+		,@T2_DBSrverName varchar(50)=null
+		,@T2_DBNAME varchar(50)=null
+		,@T2_SCHEMA_NAME varchar(10)	
+		,@T2_TABLE_NAME varchar(100)
+		,@JoinOnCols varchar(max)
+		,@ByPassCols varchar(max)=''
+		,@VerifyDataType varchar=''
+		,@TestResultTableName varchar(50) =null output
+		,@DisplayResult varchar(10)='Y'
+AS
+BEGIN
+	SET NOCOUNT ON
+	--SELECT @T1_SCHEMA_NAME = 'smsmir'		
+	--	,@T1_TABLE_NAME = 'HEI_Encounter_SF_Extract_Test1'
+
+	--	,@T2_SCHEMA_NAME = 'smsmir'	
+	--	,@T2_TABLE_NAME = 'HEI_Encounter_SF_Extract_Test2'
+	--	,@JoinOnCols = ''
+	--	,@ByPassCols =''
+
+	SELECT 
+		@T1_DBSrverName = ISNULL(@T1_DBSrverName,@@SERVERNAME)
+		,@T1_DBNAME = ISNULL(@T1_DBNAME,DB_NAME())
+		,@T2_DBSrverName = ISNULL(@T2_DBSrverName,@@SERVERNAME)
+		,@T2_DBNAME = ISNULL(@T2_DBNAME,DB_NAME())
+
+	
+
+
+--DO NOT CHANGE UNLESS 100% SURE
+DECLARE 
+@DynamicSQLStr nvarchar(max)
+,@Table1 varchar(max)
+,@Table2 varchar(max)
+,@TMPStr nvarchar(max)
+,@REMARKS varchar(max)
+,@TESTSTATUS varchar(max)
+,@DataTypeLogic varchar(max)
+declare @Table1Metadata TABLE(ColumnName varchar(max),DataType varchar(100))
+declare @Table2Metadata TABLE(ColumnName varchar(max),DataType varchar(100))
+
+IF object_id('tempdb.dbo.##TestSummary') IS NOT NULL 	
+ BEGIN 	
+	DROP TABLE ##TestSummary 	
+	PRINT '##TestSummary Deleted..' 	
+ END 	
+ Create Table ##TestSummary 	
+ (	 		
+ ColumnName					varchar(max), 		
+ DataType					varchar(max),	 		
+ QualifiedRecords			bigint,
+ FailedRecords				bigint, 		
+ PassedRecords				bigint, 		
+ LastRunDate				datetime, 		
+ Remarks					varchar(500), 		
+ LastRunType				varchar(5), 		
+ TestStatus					varchar(10), 		
+ SQLToFindFailedRecord		varchar(max)	 	
+ )
+
+ SET @Table1=@T1_DBSrverName+'.'+@T1_DBNAME+'.'+@T1_SCHEMA_NAME+'.'+@T1_TABLE_NAME
+ SET @Table2=@T2_DBSrverName+'.'+@T2_DBNAME+'.'+@T2_SCHEMA_NAME+'.'+@T2_TABLE_NAME
+ 
+ --Verify existance of object1
+ DECLARE @ObJectPresent1 TABLE (IdOfObject bigint)
+ SET @DynamicSQLStr='SELECT OBJECT_ID('+''''+REPLACE(@Table1,PARSENAME(@Table1,4)+'.','')+''''+')'
+ --print @DynamicSQLStr
+ INSERT INTO @ObJectPresent1
+ EXECUTE (@DynamicSQLStr)
+
+ IF (SELECT IdOfObject FROM @ObJectPresent1) IS NULL 
+ BEGIN
+	INSERT INTO ##TestSummary(ColumnName,Remarks,TestStatus)
+	SELECT 'Object Not Present ',REPLACE(@Table1,PARSENAME(@Table1,4)+'.',''),'FAILED'
+ END
+  --Verify existance of object2
+ DECLARE @ObJectPresent2 TABLE (IdOfObject bigint)
+ SET @DynamicSQLStr='SELECT OBJECT_ID('+''''+REPLACE(@Table2,PARSENAME(@Table2,4)+'.','')+''''+')'
+ --print @DynamicSQLStr
+ INSERT INTO @ObJectPresent2
+ EXECUTE (@DynamicSQLStr)
+ IF (SELECT IdOfObject FROM @ObJectPresent2) IS NULL 
+ BEGIN
+	INSERT INTO ##TestSummary(ColumnName,Remarks,TestStatus)
+	SELECT 'Object Not Present ',REPLACE(@Table2,PARSENAME(@Table2,4)+'.',''),'FAILED'
+ END
+ IF ( (SELECT IdOfObject FROM @ObJectPresent1) IS NULL ) OR  ( (SELECT IdOfObject FROM @ObJectPresent2) IS NULL )
+ BEGIN
+	GOTO FinalStep
+ END
+--Store metadata of table1
+SET @DynamicSQLStr = 'SELECT COLUMN_NAME,DATA_TYPE FROM '+@T1_DBSrverName+'.'+@T1_DBNAME+'.'+'INFORMATION_SCHEMA.COLUMNS '+
+				' WHERE '+'TABLE_CATALOG='+''''+@T1_DBNAME+''''+
+				' AND '+ 'TABLE_SCHEMA='+''''+@T1_SCHEMA_NAME+''''+
+				' AND '+ 'TABLE_NAME='+''''+@T1_TABLE_NAME+''''			
+INSERT INTO @Table1Metadata(ColumnName,DataType)
+EXECUTE(@DynamicSQLStr)	
+--Store metadata of table2
+SET @DynamicSQLStr = 'SELECT COLUMN_NAME,DATA_TYPE FROM '+@T2_DBSrverName+'.'+@T2_DBNAME+'.'+'INFORMATION_SCHEMA.COLUMNS '+
+				' WHERE '+'TABLE_CATALOG='+''''+@T2_DBNAME+''''+
+				' AND '+ 'TABLE_SCHEMA='+''''+@T2_SCHEMA_NAME+''''+
+				' AND '+ 'TABLE_NAME='+''''+@T2_TABLE_NAME+''''			
+INSERT INTO @Table2Metadata(ColumnName,DataType)
+EXECUTE(@DynamicSQLStr)	
+
+
+ --Verify @JoinOnCols
+ --Prepare the JOIN String
+DECLARE @ListOfJoinCols table (val nvarchar(max), seq int)
+DECLARE @delimiter char(1)=','
+set @JoinOnCols += @delimiter
+;with a as
+(
+select cast(1 as bigint) f, charindex(@delimiter, @JoinOnCols) t, 1 seq
+union all
+select t + 1, charindex(@delimiter, @JoinOnCols, t + 1), seq + 1
+from a
+where charindex(@delimiter, @JoinOnCols, t + 1)<> 0
+)
+insert @ListOfJoinCols
+select substring(@JoinOnCols, f, t - f), seq from a
+option (maxrecursion 0)
+IF  right(@JoinOnCols,1) = ',' 
+BEGIN
+	SET @JoinOnCols = LEFT(@JoinOnCols,LEN(RTRIM(LTRIM(@JoinOnCols)))-1)
+END
+
+
+ IF (LEN(LTRIM(RTRIM(@JoinOnCols)))<=0) OR (@JoinOnCols IS NULL)
+ BEGIn
+	INSERT INTO ##TestSummary(ColumnName,TestStatus)
+	SELECT 'Empty or null not acceptable in @JoinOnCols','FAILED'
+	GOTO FinalStep
+ END
+
+ --Column Name present in T1 but not present in T2
+DECLARE @ColumnNDataTypeInT1NotT2 TABLE (COLUMN_NAME varchar(max)
+										,DATATYPE varchar(max)
+										,REMARKS varchar(max)
+										,TESTSTATUS varchar(10))
+If @VerifyDataType='Y'
+BEGIN
+	SELECT @REMARKS='T1 Column name OR data type is not matching with T2, you can use @ByPassCols'
+	
+	INSERT INTO @ColumnNDataTypeInT1NotT2(COLUMN_NAME,DATATYPE,REMARKS,TESTSTATUS)
+	SELECT ColumnName,DataType,@REMARKS,'FAILED' FROM @Table1Metadata
+	EXCEPT
+	SELECT ColumnName,DataType,@REMARKS,'FAILED' FROM @Table2Metadata
+END
+ELSE
+BEGIN
+	SELECT @REMARKS='T1 Column name is not matching with T2, you can use @ByPassCols'	
+	INSERT INTO @ColumnNDataTypeInT1NotT2(COLUMN_NAME,REMARKS,TESTSTATUS)
+	SELECT ColumnName,@REMARKS,'FAILED' FROM @Table1Metadata
+	EXCEPT
+	SELECT ColumnName,@REMARKS,'FAILED' FROM @Table2Metadata
+END 
+
+ --Column Name present in T2 but not present in T1
+DECLARE @ColumnNDataTypeInT2NotT1 TABLE (COLUMN_NAME varchar(max)
+										,DATATYPE varchar(max)
+										,REMARKS varchar(max)
+										,TESTSTATUS varchar(10))
+If @VerifyDataType='Y'
+BEGIN
+	SELECT @REMARKS='T2 Column name OR data type is not matching with T1, you can use @ByPassCols'
+	
+	INSERT INTO @ColumnNDataTypeInT2NotT1(COLUMN_NAME,DATATYPE,REMARKS,TESTSTATUS)
+	SELECT ColumnName,DataType,@REMARKS,'FAILED' FROM @Table2Metadata
+	EXCEPT
+	SELECT ColumnName,DataType,@REMARKS,'FAILED' FROM @Table1Metadata
+END
+ELSE
+BEGIN
+	SELECT @REMARKS='T2 Column name is not matching with T1, you can use @ByPassCols'	
+	INSERT INTO @ColumnNDataTypeInT2NotT1(COLUMN_NAME,REMARKS,TESTSTATUS)
+	SELECT ColumnName,@REMARKS,'FAILED' FROM @Table2Metadata
+	EXCEPT
+	SELECT ColumnName,@REMARKS,'FAILED' FROM @Table1Metadata
+END
+IF ( (select count(*) from @ColumnNDataTypeInT1NotT2) > 0 ) OR ( (select count(*) from @ColumnNDataTypeInT2NotT1) > 0 )
+BEGIN
+	INSERT INTO ##TestSummary(ColumnName,DataType,Remarks,TestStatus)
+	SELECT COLUMN_NAME
+		,DATATYPE
+		,REMARKS
+		,TESTSTATUS 
+		FROM @ColumnNDataTypeInT1NotT2
+	INSERT INTO ##TestSummary(ColumnName,DataType,Remarks,TestStatus)
+	SELECT COLUMN_NAME
+		,DATATYPE
+		,REMARKS
+		,TESTSTATUS 
+	FROM @ColumnNDataTypeInT2NotT1
+	GOTO FinalStep
+END
+ELSE
+BEGIN
+	--Validate @JoinOnCols present in tables
+	INSERT INTO ##TestSummary(ColumnName,Remarks,TestStatus)
+	SELECT 'Join column not present in table',val,'FAILED' FROM @ListOfJoinCols
+	WHERE val NOT IN (SELECT ColumnName FROM @Table1Metadata)
+	IF (SELECT COUNT(*) FROM ##TestSummary)>0
+	BEGIN
+		GOTO FinalStep
+	END
+END
+
+--Keep the T1 record count
+DECLARE @T1TableCount table(NoOfRows bigint)
+SET @DynamicSQLStr='SELECT count(*) '+
+					'FROM '+
+					@Table1
+
+--print @DynamicSQLStr
+INSERT INTO @T1TableCount 
+EXECUTE(@DynamicSQLStr)
+
+--Keep the T2 record count
+DECLARE @T2TableCount table(NoOfRows bigint)
+SET @DynamicSQLStr='SELECT count(*)'+
+					'FROM '+
+					@Table2
+INSERT INTO @T2TableCount 
+EXECUTE(@DynamicSQLStr)
+
+--Compare count and inform accrdingly if mismatch
+DECLARE @T1Count bigint,@T2Count bigint
+SELECT @T1Count = NoOfRows from @T1TableCount
+SELECT @T2Count = NoOfRows from @T2TableCount
+
+
+IF (@T1Count <> @T2Count)
+BEGIN
+	INSERT INTO ##TestSummary(ColumnName,DataType,Remarks,TestStatus)
+	SELECT 'Row count is not matching between tables'
+			,''
+			,'T1 count:'+convert(varchar,@T1Count)+' T2 count:'+convert(varchar,@T2Count)
+			,'FAILED'
+	GOTO FinalStep
+END
+
+--Verify duplicate in @JoinColumn T1
+DECLARE @NOfDuplicateINJoinColsForT1 TABLE (NowOfRecords bigint)
+DECLARE @DupRecCountT1 bigint,@DupRecCountT2 bigint
+SET @DynamicSQLStr='select RecordCount
+		FROM
+		(
+		SELECT count(*) RecordCount 
+		FROM '+@Table1+
+		' group by '+@JoinOnCols+
+		' having count(*)>1'+
+		') x'
+--print @DynamicSQLStr
+INSERT INTO @NOfDuplicateINJoinColsForT1
+EXECUTE (@DynamicSQLStr)
+SELECT @DupRecCountT1 = NowOfRecords FROM @NOfDuplicateINJoinColsForT1
+IF @DupRecCountT1>0
+BEGIN
+	INSERT INTO ##TestSummary(ColumnName,Remarks,TestStatus)
+	SELECT 'Duplicate values in @JoinOnCols for T1'
+	,'No of duplicate: '+convert(varchar,@DupRecCountT1), 'FAILED'
+END
+
+--Verify duplicate in @JoinColumn T2
+DECLARE @NOfDuplicateINJoinColsForT2 TABLE (NowOfRecords bigint)
+SET @DynamicSQLStr='select RecordCount
+		FROM
+		(
+		SELECT count(*) RecordCount 
+		FROM '+@Table2+
+		' group by '+@JoinOnCols+
+		' having count(*)>1'+
+		') x'
+--print @DynamicSQLStr
+INSERT INTO @NOfDuplicateINJoinColsForT2
+EXECUTE (@DynamicSQLStr)
+SELECT @DupRecCountT2 = NowOfRecords FROM @NOfDuplicateINJoinColsForT2
+IF @DupRecCountT2>0
+BEGIN
+	INSERT INTO ##TestSummary(ColumnName,Remarks,TestStatus)
+	SELECT 'Duplicate values in @JoinOnCols for T2'
+	,'No of duplicate: '+convert(varchar,@DupRecCountT2), 'FAILED'
+END
+
+IF(@DupRecCountT1 >0 OR @DupRecCountT2>0)
+BEGIN
+	GOTO FinalStep
+END
+
+
+
+--MAIN BODY FOR COMPARISOM EVERY ROW WISE COLUMN WISE
+DECLARE @TotString nvarchar(max)
+DECLARE @T1Name varchar(max)='',@T2Name varchar(max)=''
+DECLARE @ColumnName varchar(100)
+		,@DataType varchar(100)
+		,@DataTypeCase varchar(100)
+		,@JoinString nvarchar(max)
+		,@HandQryIdentityColumnName varchar(100)
+		,@WEBIQryIdentityColumnName varchar(100)
+		,@DefaultIdentity varchar(100)
+
+
+--Finally Keep the metadata
+INSERT INTO ##TestSummary(ColumnName,DataType)
+SELECT ColumnName,DataType FROM @Table1Metadata
+--Delete the bypassed cols
+If LEN(LTRIM(RTRIM(@ByPassCols))) > 0
+BEGIN
+	SET @ByPassCols = '''' +  @ByPassCols + ''''
+	SET @ByPassCols = REPLACE(@ByPassCols,',',''',''')
+	EXECUTE ('DELETE FROM ##TestSummary WHERE ColumnName IN' +'('+@ByPassCols+')')
+End	
+	
+	
+	--PRINT 'Here1'	
+	--Declaring the TempTable which will hold information about datatype and according to that will construct the SQL Below
+	DECLARE @DateTypeCaseTable TABLE (datatype varchar(100), choiceCase int)
+	INSERT INTO @DateTypeCaseTable values('decimal',1)
+	INSERT INTO @DateTypeCaseTable values('datetime',2)
+	INSERT INTO @DateTypeCaseTable values('smalldatetime',2)
+	INSERT INTO @DateTypeCaseTable values('varchar',2)
+	INSERT INTO @DateTypeCaseTable values('varchar',2)
+	INSERT INTO @DateTypeCaseTable values('char',2)
+	INSERT INTO @DateTypeCaseTable values('tinyint',2)
+	INSERT INTO @DateTypeCaseTable values('smallint',2)
+	INSERT INTO @DateTypeCaseTable values('int',2)
+	INSERT INTO @DateTypeCaseTable values('bigint',2)
+	INSERT INTO @DateTypeCaseTable values('float',2)
+	INSERT INTO @DateTypeCaseTable values('bit',2)
+	INSERT INTO @DateTypeCaseTable values('nvarchar',2)
+	INSERT INTO @DateTypeCaseTable values('numeric',1)
+	INSERT INTO @DateTypeCaseTable values('timestamp',1)
+	INSERT INTO @DateTypeCaseTable values('varbinary',1)
+	INSERT INTO @DateTypeCaseTable values('date',2)
+	--EOF Declaring the TempTable which will hold information about datatype and accrding to that will construct the SQL Below
+
+	
+	
+	
+	SELECT @JoinString = CASE 
+								WHEN @JoinString IS NULL THEN 'ISNULL(T1.' + val + ','''')'+'='+'ISNULL(T2.' + val + ','''')'
+								WHEN @JoinString IS NOT NULL THEN @JoinString+' AND '+'ISNULL(T1.' + val + ','''')'+'='+'ISNULL(T2.' + val + ','''')'
+								WHEN right(@JoinString,1) = ',' THEN LEFT(@JoinString,LEN(RTRIM(LTRIM(@JoinString)))-1)
+							END
+			FROM @ListOfJoinCols
+			--Order by seq
+	--EOF Prepare the JOIN String
+	--PRINT 'HERE2'
+	--SELECT @JoinString
+	
+	DECLARE ColumnNameCursor CURSOR FOR SELECT ##TestSummary.ColumnName,##TestSummary.DataType FROM  ##TestSummary
+	OPEN ColumnNameCursor
+	
+	FETCH NEXT FROM ColumnNameCursor INTO @ColumnName,@DataType
+	WHILE (@@FETCH_STATUS  =0)
+	BEGIN
+		--Take the datatype case
+		SELECT @DataTypeCase = choiceCase FROM @DateTypeCaseTable WHERE UPPER(LTRIM(RTRIM(datatype))) = UPPER(LTRIM(RTRIM(@DataType)))	
+		--EOF Take the datatype case
+		
+		--Creating Dynamic SQL
+		--Creating Dynamic SQL
+		SET @TotString = 'UPDATE ##TestSummary '+
+							 'SET FailedRecords = '+
+							 '('+
+							 'SELECT Count'+'('+'*'+')'+' FROM '+ @T1_DBSrverName +'.'+ @T1_DBNAME + '.' + @T1_SCHEMA_NAME + '.' + @T1_TABLE_NAME +' T1'+
+							 ' JOIN '+ @T2_DBSrverName +'.'+ @T2_DBNAME+'.'+@T2_SCHEMA_NAME+'.'+@T2_TABLE_NAME+' '+'T2'+ ' ON '+@JoinString
+							 
+							IF (@DataTypeCase = 1) 
+							BEGIN
+								SET @TotString = @TotString + ' WHERE '+'ISNULL(T1.' + @ColumnName + ',-0.00)'+'<>'+'ISNULL(T2.' + @ColumnName + ',-0.00)'
+							END
+							IF (@DataTypeCase = 2)
+							BEGIN
+								SET @TotString = @TotString + ' WHERE ISNULL(T1.'+@ColumnName+','''')'+ '<>'+'ISNULL(T2'+'.'+@ColumnName	+','''')'
+							END
+							
+							SET @TotString=@TotString+'),'
+			SET @TotString = @TotString +	
+							' PassedRecords = '+
+							'('+
+							'SELECT Count'+'('+'*'+')'+' FROM '+@T1_DBSrverName+'.'+@T1_DBNAME + '.' + @T1_SCHEMA_NAME + '.' + @T1_TABLE_NAME +' T1'+
+							 ' JOIN '+ @T2_DBSrverName+'.'+@T2_DBNAME+'.'+@T2_SCHEMA_NAME+'.'+@T2_TABLE_NAME+' '+'T2'+ ' ON '+@JoinString
+							 
+						IF (@DataTypeCase = 1) 
+							BEGIN
+								SET @TotString = @TotString + ' WHERE '+'ISNULL(T1.' + @ColumnName + ',-0.00)'+'='+'ISNULL(T2.' + @ColumnName + ',-0.00)'
+							END
+							IF (@DataTypeCase = 2)
+							BEGIN
+								SET @TotString = @TotString + ' WHERE ISNULL(T1.'+@ColumnName+','''')'+ '='+'ISNULL(T2'+'.'+@ColumnName	+','''')'
+							END						SET @TotString=@TotString+'),'
+		SET @TotString = @TotString +	
+							' QualifiedRecords = '+
+							'('+
+							'SELECT Count'+'('+'*'+')'+' FROM '+@T1_DBSrverName+'.'+@T1_DBNAME + '.' + @T1_SCHEMA_NAME + '.' + @T1_TABLE_NAME +' T1'+
+							 ' JOIN '+ @T2_DBSrverName+'.'+@T2_DBNAME+'.'+@T2_SCHEMA_NAME+'.'+@T2_TABLE_NAME+' '+'T2'+ ' ON '+@JoinString
+		SET @TotString=@TotString+')'
+							
+		SET @TotString = @TotString+' WHERE ##TestSummary.ColumnName = '+''''+@ColumnName+''''		
+		
+		--EOF Creating Dynamic SQL
+		--PRINT @TotString
+		EXECUTE (@TotString)
+
+		
+		--Put SQL for failed Records
+		IF (SELECT FailedRecords FROM ##TestSummary WHERE ColumnName=@ColumnName)>0
+		BEGIN
+			SET @T1Name=@T1_DBSrverName+'.'+@T1_DBNAME + '.' + @T1_SCHEMA_NAME + '.' + @T1_TABLE_NAME
+			SET @T2Name=@T2_DBSrverName+'.'+@T2_DBNAME + '.' + @T2_SCHEMA_NAME + '.' + @T2_TABLE_NAME
+
+			SET @TotString=	 'SELECT'+
+								' T1.'+@ColumnName+' AS '+''''+@T1Name+'.'+@ColumnName+''''+','+
+								' T2.'+@ColumnName+' AS '+''''+@T2Name+'.'+@ColumnName+''''+
+							' FROM '+ @T1Name +' T1'+CHAR(13)+
+							 ' JOIN '+ @T2Name+' '+'T2'+ ' ON '+@JoinString+CHAR(13)
+							 
+							IF (@DataTypeCase = 1) 
+							BEGIN
+								SET @TotString = @TotString + ' WHERE '+'ISNULL(T1.' + @ColumnName + ',-0.00)'+'<>'+'ISNULL(T2.' + @ColumnName + ',-0.00)'
+							END
+							IF (@DataTypeCase = 2)
+							BEGIN
+								SET @TotString = @TotString + ' WHERE ISNULL(T1.'+@ColumnName+','''')'+ '<>'+'ISNULL(T2'+'.'+@ColumnName	+','''')'
+							END
+					--print @TotString
+					UPDATE ##TestSummary
+					SET SQLToFindFailedRecord=@TotString
+					WHERE ColumnName=@ColumnName 
+					--PRINT @TotString
+		END
+		
+		
+		SET @DataTypeCase=NULL
+	   FETCH NEXT FROM ColumnNameCursor INTO @ColumnName,@DataType
+	END
+	CLOSE ColumnNameCursor
+	DEALLOCATE ColumnNameCursor
+
+	--Update the test status
+	UPDATE ##TestSummary SET TestStatus=CASE 
+											WHEN ##TestSummary.FailedRecords>0 THEN 'FAILED'
+											ELSE 'PASSED'
+										END
+
+
+	
+FinalStep:
+	--Finally Display The Result
+	IF @DisplayResult='Y'
+	BEGIN
+		SELECT 
+		ColumnName
+		,DataType
+		,QualifiedRecords
+		,FailedRecords
+		,PassedRecords
+		,Remarks
+		,TestStatus
+		,SQLToFindFailedRecord
+		FROM ##TestSummary
+		Order By ColumnName ASC,TestStatus ASC
+
+	END
+	--print @TestResultTableName
+	IF (@TestResultTableName is not null)
+	BEGIN
+		IF OBJECT_ID(@TestResultTableName) IS NOT NULL
+		BEGIN
+			EXECUTE('DROP TABLE '+@TestResultTableName)
+			print 'Dropped '+@TestResultTableName
+		END
+		Set @DynamicSQLStr='SELECT * INTO '+@TestResultTableName+' FROM ##TestSummary '
+		--print @DynamicSQLStr
+		EXECUTE(@DynamicSQLStr) 
+	--DROP Table ##SubjectTable
+		
+	END
+	DROP TABLE ##TestSummary
+	SET NOCOUNT OFF
+END
+

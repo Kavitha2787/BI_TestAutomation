@@ -1,0 +1,9 @@
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\bin\Release\UserConfiguration.exe.config
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\bin\Release\UserConfiguration.exe
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\bin\Release\UserConfiguration.pdb
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\obj\Release\UserConfiguration.frm_UserConfiguration.resources
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\obj\Release\UserConfiguration.Properties.Resources.resources
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\obj\Release\UserConfiguration.csproj.GenerateResource.Cache
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\obj\Release\UserConfiguration.csproj.CoreCompileInputs.cache
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\obj\Release\UserConfiguration.exe
+C:\WorkDrive\BI_Work\BIAutomation_Latestfiles\UserConfiguration\UserConfiguration\obj\Release\UserConfiguration.pdb
